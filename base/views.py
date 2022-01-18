@@ -8,19 +8,19 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 
 
-
 # Create your views here.
 
 def lobby(request):
     return render(request, 'base/lobby.html')
+
 
 def room(request):
     return render(request, 'base/room.html')
 
 
 def getToken(request):
-    appId = "YOUR APP ID"
-    appCertificate = "YOUR APP CERTIFICATE"
+    appId = "05f0ac5f31da4cab9a0ad67877d5f6f2"
+    appCertificate = "1212ef8c5c004a189819852dc2d820ed"
     channelName = request.GET.get('channel')
     uid = random.randint(1, 230)
     expirationTimeInSeconds = 3600
@@ -42,7 +42,7 @@ def createMember(request):
         room_name=data['room_name']
     )
 
-    return JsonResponse({'name':data['name']}, safe=False)
+    return JsonResponse({'name': data['name']}, safe=False)
 
 
 def getMember(request):
@@ -54,7 +54,8 @@ def getMember(request):
         room_name=room_name,
     )
     name = member.name
-    return JsonResponse({'name':member.name}, safe=False)
+    return JsonResponse({'name': member.name}, safe=False)
+
 
 @csrf_exempt
 def deleteMember(request):
