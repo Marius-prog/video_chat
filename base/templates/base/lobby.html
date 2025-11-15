@@ -39,24 +39,66 @@
 
     let handleSubmit = async (e) => {
         e.preventDefault()
-        let room = e.target.room.value.toUpperCase()
-        let name = e.target.name.value
 
-        let response = await fetch(`/get_token/?channel=${room}`)
-        let data = await response.json()
+        let room = e.target.room.value.trim().toUpperCase()
+        let name = e.target.name.value.trim()
 
-        let UID = data.uid
-        let token = data.token
+        // Validate inputs client-side
+        if (!room || room.length < 1 || room.length > 64) {
+            alert('Please enter a valid room name (1-64 characters)')
+            return
+        }
 
-        sessionStorage.setItem('UID', UID)
-        sessionStorage.setItem('token', token)
-        sessionStorage.setItem('room', room)
-        sessionStorage.setItem('name', name)
+        if (!name || name.length < 2 || name.length > 100) {
+            alert('Please enter a valid name (2-100 characters)')
+            return
+        }
 
-        window.open('/room/', '_self')
+        // Validate allowed characters
+        if (!/^[a-zA-Z0-9_-]+$/.test(room)) {
+            alert('Room name can only contain letters, numbers, underscores, and hyphens')
+            return
+        }
+
+        if (!/^[a-zA-Z0-9_\s-]+$/.test(name)) {
+            alert('Name contains invalid characters')
+            return
+        }
+
+        try {
+            // Get token from backend
+            let response = await fetch(`/get_token/?channel=${encodeURIComponent(room)}`)
+
+            if (!response.ok) {
+                let error = await response.json()
+                throw new Error(error.error || 'Failed to get token')
+            }
+
+            let data = await response.json()
+
+            // Validate response
+            if (!data.uid || !data.token || !data.app_id) {
+                throw new Error('Invalid server response')
+            }
+
+            let UID = data.uid
+            let token = data.token
+            let appId = data.app_id
+
+            // Store in sessionStorage
+            sessionStorage.setItem('UID', UID)
+            sessionStorage.setItem('token', token)
+            sessionStorage.setItem('room', room)
+            sessionStorage.setItem('name', name)
+            sessionStorage.setItem('appId', appId)
+
+            // Redirect to room
+            window.open('/room/', '_self')
+        } catch (error) {
+            console.error('Error joining room:', error)
+            alert('Failed to join room: ' + error.message)
+        }
     }
-
-
 
     form.addEventListener('submit', handleSubmit)
 </script>
