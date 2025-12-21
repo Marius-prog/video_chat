@@ -1,107 +1,111 @@
 {% extends 'base/main.html' %}
 {% load static %}
+
+{% block title %}COMMAND CENTER{% endblock %}
+
 {% block content %}
+<div class="lobby-container">
+    <div class="tactical-panel">
+        <div class="panel-header">
+            <h1 class="panel-title">Command Center</h1>
+            <span class="panel-id">CMD-001</span>
+        </div>
 
-<main>
+        <p class="panel-subtitle">// Initialize tactical video communication channel</p>
 
-    <section id="form-container">
-
-        <img id="logo" src="{% static 'images/chat-icon.png' %}"/>
-
-        <div id="welcome-message">
-            <h1>Welcome to MyChat</h1>
-            <p>A group video calling platform made just for you!</p>
+        <!-- Operator Info -->
+        <div class="operator-info">
+            <div class="operator-avatar">
+                {{ user.username|slice:":2"|upper }}
+            </div>
+            <div class="operator-details">
+                <div class="operator-label">Operator</div>
+                <div class="operator-name">{{ user.username|upper }}</div>
+            </div>
+            <div class="operator-status">READY</div>
         </div>
 
         <form id="form">
-            <div class="field-wrapper">
-
-                <div class="form-field">
-                    <label>Room:</label>
-                    <input name="room" placeholder="Enter a room name..."  style="text-transform:uppercase"/>
-                </div>
-
-                <div class="form-field">
-                    <label>Name:</label>
-                    <input name="name" placeholder="Enter your name..."  style="text-transform:uppercase"/>
-                </div>
-
-                <div class="form-field">
-                    <input type="submit" value="Join Stream" />
-                </div>
+            <div class="form-group">
+                <label class="form-label" for="room">Channel Designation</label>
+                <input
+                    type="text"
+                    id="room"
+                    name="room"
+                    class="form-input"
+                    placeholder="Enter channel code..."
+                    required
+                    pattern="[a-zA-Z0-9_-]+"
+                    maxlength="64"
+                    style="text-transform: uppercase;"
+                >
             </div>
+
+            <button type="submit" class="btn btn-block">
+                <span>[>]</span> Connect to Channel
+            </button>
         </form>
-    </section>
-</main>
+    </div>
+</div>
 
 <script>
-    let form = document.getElementById('form')
+    // Clear any stale session data when entering lobby
+    sessionStorage.removeItem('UID')
+    sessionStorage.removeItem('token')
+    sessionStorage.removeItem('room')
+    sessionStorage.removeItem('name')
+    sessionStorage.removeItem('appId')
 
-    let handleSubmit = async (e) => {
+    const form = document.getElementById('form')
+    const username = '{{ user.username }}'
+
+    const handleSubmit = async (e) => {
         e.preventDefault()
 
         let room = e.target.room.value.trim().toUpperCase()
-        let name = e.target.name.value.trim()
 
-        // Validate inputs client-side
+        // Validate room name
         if (!room || room.length < 1 || room.length > 64) {
-            alert('Please enter a valid room name (1-64 characters)')
+            alert('INVALID INPUT: Channel designation must be 1-64 characters')
             return
         }
 
-        if (!name || name.length < 2 || name.length > 100) {
-            alert('Please enter a valid name (2-100 characters)')
-            return
-        }
-
-        // Validate allowed characters
         if (!/^[a-zA-Z0-9_-]+$/.test(room)) {
-            alert('Room name can only contain letters, numbers, underscores, and hyphens')
-            return
-        }
-
-        if (!/^[a-zA-Z0-9_\s-]+$/.test(name)) {
-            alert('Name contains invalid characters')
+            alert('INVALID INPUT: Channel designation can only contain alphanumeric characters, underscores, and hyphens')
             return
         }
 
         try {
             // Get token from backend
-            let response = await fetch(`/get_token/?channel=${encodeURIComponent(room)}`)
+            const response = await fetch(`/get_token/?channel=${encodeURIComponent(room)}`)
 
             if (!response.ok) {
-                let error = await response.json()
-                throw new Error(error.error || 'Failed to get token')
+                const error = await response.json()
+                throw new Error(error.error || 'Failed to get authentication token')
             }
 
-            let data = await response.json()
+            const data = await response.json()
 
             // Validate response
             if (!data.uid || !data.token || !data.app_id) {
                 throw new Error('Invalid server response')
             }
 
-            let UID = data.uid
-            let token = data.token
-            let appId = data.app_id
-
             // Store in sessionStorage
-            sessionStorage.setItem('UID', UID)
-            sessionStorage.setItem('token', token)
+            sessionStorage.setItem('UID', data.uid)
+            sessionStorage.setItem('token', data.token)
             sessionStorage.setItem('room', room)
-            sessionStorage.setItem('name', name)
-            sessionStorage.setItem('appId', appId)
+            sessionStorage.setItem('name', username)
+            sessionStorage.setItem('appId', data.app_id)
 
             // Redirect to room
-            window.open('/room/', '_self')
+            window.location.href = '/room/'
         } catch (error) {
-            console.error('Error joining room:', error)
-            alert('Failed to join room: ' + error.message)
+            console.error('Connection error:', error)
+            alert('CONNECTION FAILED: ' + error.message)
         }
     }
 
     form.addEventListener('submit', handleSubmit)
 </script>
-
-{% endblock content %}
-
+{% endblock %}

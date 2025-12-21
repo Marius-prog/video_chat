@@ -1,0 +1,85 @@
+{% extends 'base/main.html' %}
+{% load static %}
+
+{% block title %}REGISTER{% endblock %}
+
+{% block content %}
+<div class="tactical-panel">
+    <div class="panel-header">
+        <h1 class="panel-title">Registration</h1>
+        <span class="panel-id">REG-001</span>
+    </div>
+
+    <p class="panel-subtitle">// Request access to tactical communications network</p>
+
+    <form method="POST" action="{% url 'register' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label class="form-label" for="username">Callsign</label>
+            <input
+                type="text"
+                id="username"
+                name="username"
+                class="form-input"
+                placeholder="Choose your callsign..."
+                autocomplete="username"
+                required
+                autofocus
+                minlength="3"
+                maxlength="30"
+                pattern="[a-zA-Z0-9_\s-]+"
+            >
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="callsign">Display Name (Optional)</label>
+            <input
+                type="text"
+                id="callsign"
+                name="callsign"
+                class="form-input"
+                placeholder="Your display name..."
+                maxlength="50"
+            >
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="password1">Access Code</label>
+            <input
+                type="password"
+                id="password1"
+                name="password1"
+                class="form-input"
+                placeholder="Create access code (min 8 chars)..."
+                autocomplete="new-password"
+                required
+                minlength="8"
+            >
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="password2">Confirm Access Code</label>
+            <input
+                type="password"
+                id="password2"
+                name="password2"
+                class="form-input"
+                placeholder="Confirm access code..."
+                autocomplete="new-password"
+                required
+                minlength="8"
+            >
+        </div>
+
+        <button type="submit" class="btn btn-block">
+            <span>[+]</span> Request Access
+        </button>
+    </form>
+
+    <div class="form-links">
+        <span class="form-link-label">Already have clearance?</span>
+        <a href="{% url 'login' %}" class="form-link">Authenticate</a>
+    </div>
+</div>
+{% endblock %}

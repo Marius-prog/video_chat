@@ -1,30 +1,64 @@
 {% extends 'base/main.html' %}
 {% load static %}
-{% block content %}
 
-<main>
+{% block title %}TACTICAL CHANNEL{% endblock %}
+
+{% block content %}
+<div class="room-container">
     <section id="room-name-wrapper">
-        <p>Room Name: <span id="room-name"></span></p>
+        <div class="room-info">
+            <p>
+                <span class="info-label">CHANNEL:</span>
+                <span id="room-name">---</span>
+            </p>
+            <p>
+                <span class="info-label">OPERATORS:</span>
+                <span id="user-count">0</span>
+            </p>
+        </div>
+        <div id="connected-users"></div>
     </section>
 
     <section id="video-streams"></section>
 
     <section id="controls-wrapper">
-        <div class="icon-wrapper">
-            <img class="control-icon" id="mic-btn" src="{% static 'images/microphone.svg' %}" />
+        <div class="icon-wrapper" title="Toggle Microphone">
+            <img class="control-icon" id="mic-btn" src="{% static 'images/microphone.svg' %}" alt="Microphone" />
         </div>
 
-        <div class="icon-wrapper">
-            <img class="control-icon" id="camera-btn" src="{% static 'images/video.svg' %}" />
+        <div class="icon-wrapper" title="Toggle Camera">
+            <img class="control-icon" id="camera-btn" src="{% static 'images/video.svg' %}" alt="Camera" />
         </div>
 
-        <div class="icon-wrapper">
-            <img class="control-icon" id="leave-btn" src="{% static 'images/leave.svg' %}" />
+        <div class="icon-wrapper" title="Leave Channel">
+            <img class="control-icon" id="leave-btn" src="{% static 'images/leave.svg' %}" alt="Leave" />
         </div>
     </section>
-</main>
+</div>
 
+<style>
+    .room-container {
+        width: 100%;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
 
-<script type="text/javascript" src="{% static 'assets/AgoraRTC_N-4.8.0.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/streams.js' %}" ></script>
-{% endblock content %}
+    .tactical-main {
+        align-items: flex-start;
+        padding: var(--space-lg);
+    }
+
+    .room-info {
+        display: flex;
+        gap: var(--space-xl);
+    }
+
+    .info-label {
+        color: var(--text-muted);
+        margin-right: var(--space-sm);
+    }
+</style>
+
+<script type="text/javascript" src="{% static 'assets/AgoraRTC_N.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/streams.js' %}"></script>
+{% endblock %}

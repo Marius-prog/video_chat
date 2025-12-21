@@ -1,0 +1,55 @@
+{% extends 'base/main.html' %}
+{% load static %}
+
+{% block title %}AUTHENTICATE{% endblock %}
+
+{% block content %}
+<div class="tactical-panel">
+    <div class="panel-header">
+        <h1 class="panel-title">Authentication</h1>
+        <span class="panel-id">SEC-001</span>
+    </div>
+
+    <p class="panel-subtitle">// Enter credentials to access tactical communications network</p>
+
+    <form method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label class="form-label" for="username">Callsign</label>
+            <input
+                type="text"
+                id="username"
+                name="username"
+                class="form-input"
+                placeholder="Enter your callsign..."
+                autocomplete="username"
+                required
+                autofocus
+            >
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="password">Access Code</label>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                class="form-input"
+                placeholder="Enter access code..."
+                autocomplete="current-password"
+                required
+            >
+        </div>
+
+        <button type="submit" class="btn btn-block">
+            <span>[>]</span> Authenticate
+        </button>
+    </form>
+
+    <div class="form-links">
+        <span class="form-link-label">New operator?</span>
+        <a href="{% url 'register' %}" class="form-link">Request Access</a>
+    </div>
+</div>
+{% endblock %}

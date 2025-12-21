@@ -2,6 +2,7 @@
 Video chat views with military-grade security.
 
 This module implements secure video chat functionality with:
+- User authentication (login, register, logout)
 - Rate limiting to prevent abuse
 - Input validation and sanitization
 - CSRF protection
@@ -18,12 +19,17 @@ import time
 from typing import Dict, Any, Optional
 
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse, HttpRequest, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils.html import escape
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
-from django_ratelimit.decorators import ratelimit
+from ratelimit.decorators import ratelimit
 
 from agora_token_builder import RtcTokenBuilder
 from .models import RoomMember
@@ -179,9 +185,111 @@ def csrf_failure(request: HttpRequest, reason: str = "") -> JsonResponse:
 
 
 # ==============================================================================
-# VIEWS
+# AUTHENTICATION VIEWS
 # ==============================================================================
 
+@ratelimit(key='ip', rate='10/m', block=True)
+def login_view(request: HttpRequest) -> HttpResponse:
+    """
+    Handle user login.
+    """
+    if request.user.is_authenticated:
+        return redirect('lobby')
+
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
+
+        if not username or not password:
+            messages.error(request, 'AUTHENTICATION REQUIRED: Enter credentials')
+            return render(request, 'base/login.html')
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            logger.info(f"User logged in: {username}")
+            messages.success(request, f'ACCESS GRANTED: Welcome, {user.username}')
+            return redirect('lobby')
+        else:
+            logger.warning(f"Failed login attempt for: {username}")
+            messages.error(request, 'ACCESS DENIED: Invalid credentials')
+
+    return render(request, 'base/login.html')
+
+
+@ratelimit(key='ip', rate='5/m', block=True)
+def register_view(request: HttpRequest) -> HttpResponse:
+    """
+    Handle user registration.
+    """
+    if request.user.is_authenticated:
+        return redirect('lobby')
+
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password1 = request.POST.get('password1', '')
+        password2 = request.POST.get('password2', '')
+        callsign = request.POST.get('callsign', '').strip()
+
+        # Validation
+        errors = []
+
+        if not username or len(username) < 3:
+            errors.append('Callsign must be at least 3 characters')
+
+        if not ALLOWED_USERNAME_CHARS.match(username):
+            errors.append('Callsign contains invalid characters')
+
+        if len(password1) < 8:
+            errors.append('Password must be at least 8 characters')
+
+        if password1 != password2:
+            errors.append('Passwords do not match')
+
+        if User.objects.filter(username=username).exists():
+            errors.append('Callsign already in use')
+
+        if errors:
+            for error in errors:
+                messages.error(request, f'REGISTRATION FAILED: {error}')
+            return render(request, 'base/register.html')
+
+        # Create user
+        try:
+            user = User.objects.create_user(
+                username=username,
+                password=password1,
+                first_name=callsign or username
+            )
+            login(request, user)
+            logger.info(f"New user registered: {username}")
+            messages.success(request, f'REGISTRATION COMPLETE: Welcome to the unit, {username}')
+            return redirect('lobby')
+        except Exception as e:
+            logger.error(f"Registration failed: {str(e)}")
+            messages.error(request, 'REGISTRATION FAILED: System error')
+
+    return render(request, 'base/register.html')
+
+
+@login_required
+def logout_view(request: HttpRequest) -> HttpResponse:
+    """
+    Handle user logout.
+    """
+    username = request.user.username
+    logout(request)
+    logger.info(f"User logged out: {username}")
+    messages.success(request, 'SIGNED OUT: Session terminated')
+    return redirect('login')
+
+
+# ==============================================================================
+# MAIN VIEWS
+# ==============================================================================
+
+@login_required
 @require_GET
 def lobby(request: HttpRequest) -> HttpResponse:
     """
@@ -196,7 +304,9 @@ def lobby(request: HttpRequest) -> HttpResponse:
     return render(request, 'base/lobby.html')
 
 
+@login_required
 @require_GET
+@ensure_csrf_cookie
 def room(request: HttpRequest) -> HttpResponse:
     """
     Render the video chat room page.
@@ -210,9 +320,9 @@ def room(request: HttpRequest) -> HttpResponse:
     # Verify session has required data
     if not request.session.get('room_name'):
         logger.warning(f"Unauthorized room access attempt from IP {request.META.get('REMOTE_ADDR')}")
-        return render(request, 'base/lobby.html')
+        return redirect('lobby')
 
-    return render(request, 'base/room.html')
+    return render(request, 'base/room.html', {'user': request.user})
 
 
 @require_GET

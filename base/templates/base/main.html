@@ -1,20 +1,115 @@
 <!DOCTYPE html>
 {% load static %}
-<html>
+<html lang="en">
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>MyChat</title>
+    <title>{% block title %}TACCOM{% endblock %} | Tactical Communications</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+    <!-- Military Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel='stylesheet' type='text/css' media='screen' href="{% static 'styles/main.css' %}">
-    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/main.js' %}" defer></script>
 </head>
 <body>
-    {% block content %}
+    <!-- Scanline Overlay -->
+    <div class="scanlines"></div>
 
-    {% endblock content %}
+    <!-- Grid Background -->
+    <div class="tactical-grid"></div>
+
+    <!-- Navigation Bar -->
+    <nav class="tactical-nav">
+        <div class="nav-brand">
+            <span class="brand-icon">[//]</span>
+            <span class="brand-text">TACCOM</span>
+            <span class="brand-sub">v2.1.7</span>
+        </div>
+
+        <div class="nav-status">
+            <div class="status-indicator online">
+                <span class="status-dot"></span>
+                <span class="status-text">SYSTEM ACTIVE</span>
+            </div>
+            <div class="status-time" id="system-time">--:--:--</div>
+        </div>
+
+        <div class="nav-actions">
+            {% if user.is_authenticated %}
+                <div class="user-badge">
+                    <span class="badge-rank">[OP]</span>
+                    <span class="badge-name">{{ user.username|upper }}</span>
+                </div>
+                <a href="{% url 'logout' %}" class="nav-btn logout-btn">
+                    <span class="btn-icon">[X]</span>
+                    <span class="btn-text">DISCONNECT</span>
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}" class="nav-btn">
+                    <span class="btn-text">LOGIN</span>
+                </a>
+                <a href="{% url 'register' %}" class="nav-btn primary">
+                    <span class="btn-text">REGISTER</span>
+                </a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Alert Messages -->
+    {% if messages %}
+    <div class="alert-container">
+        {% for message in messages %}
+        <div class="tactical-alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" data-alert>
+            <div class="alert-icon">
+                {% if 'error' in message.tags %}[!]{% elif 'success' in message.tags %}[+]{% else %}[i]{% endif %}
+            </div>
+            <div class="alert-content">{{ message }}</div>
+            <button class="alert-close" onclick="this.parentElement.remove()">[X]</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="tactical-main">
+        {% block content %}{% endblock content %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="tactical-footer">
+        <div class="footer-left">
+            <span class="footer-label">ENCRYPTION:</span>
+            <span class="footer-value secure">AES-256</span>
+        </div>
+        <div class="footer-center">
+            TACTICAL COMMUNICATIONS SYSTEM // CLASSIFIED
+        </div>
+        <div class="footer-right">
+            <span class="footer-label">UPLINK:</span>
+            <span class="footer-value" id="uplink-status">CONNECTED</span>
+        </div>
+    </footer>
+
+    <script>
+        // System time display
+        function updateTime() {
+            const now = new Date();
+            const time = now.toTimeString().split(' ')[0];
+            const el = document.getElementById('system-time');
+            if (el) el.textContent = time;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Auto-dismiss alerts
+        document.querySelectorAll('[data-alert]').forEach(alert => {
+            setTimeout(() => alert.classList.add('fade-out'), 5000);
+            setTimeout(() => alert.remove(), 5500);
+        });
+    </script>
 </body>
-<!-- <script type="text/javascript" src="{% static 'assets/AgoraRTC_N-4.8.0.js' %}"></script> -->
-
-
 </html>

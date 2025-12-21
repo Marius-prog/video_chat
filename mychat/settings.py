@@ -11,8 +11,8 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import os
 from pathlib import Path
-import django_on_heroku
-import dj_database_url
+# import django_on_heroku  # Commented out for local development
+# import dj_database_url
 from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -154,9 +154,9 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # CSRF security
 CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=not DEBUG, cast=bool)
-CSRF_COOKIE_HTTPONLY = True
-CSRF_COOKIE_SAMESITE = 'Strict'
-CSRF_USE_SESSIONS = True
+CSRF_COOKIE_HTTPONLY = not DEBUG  # False in DEBUG mode so JS can read the token
+CSRF_COOKIE_SAMESITE = 'Lax' if DEBUG else 'Strict'
+CSRF_USE_SESSIONS = not DEBUG  # Use cookie-based CSRF in DEBUG mode
 CSRF_FAILURE_VIEW = 'base.views.csrf_failure'
 
 # HTTP Strict Transport Security (HSTS)
@@ -201,6 +201,11 @@ CACHES = {
 RATELIMIT_ENABLE = True
 RATELIMIT_USE_CACHE = 'default'
 
+# Authentication settings
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'lobby'
+LOGOUT_REDIRECT_URL = 'login'
+
 # ==============================================================================
 # LOGGING CONFIGURATION
 # ==============================================================================
@@ -244,4 +249,4 @@ LOGGING = {
 # Create logs directory if it doesn't exist
 os.makedirs(BASE_DIR / 'logs', exist_ok=True)
 
-django_on_heroku.settings(locals())
+# django_on_heroku.settings(locals())  # Commented out for local development
