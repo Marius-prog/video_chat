@@ -1,0 +1,11 @@
+{
+  "name": "videochat-e2e",
+  "private": true,
+  "description": "Browser tests for the Flet video chat app (Puppeteer).",
+  "scripts": {
+    "test": "node run.js"
+  },
+  "devDependencies": {
+    "puppeteer": ">=22.0.0"
+  }
+}

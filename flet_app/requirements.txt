@@ -1,0 +1,11 @@
+# Runtime dependencies for the Flet app (Python 3.11+).
+# These are the exact versions the unit tests and the browser E2E suite were run against.
+# Flet is pre-2.0 and changes between releases, so keep the three flet packages on the same version.
+flet==1.0.5
+flet-web==1.0.5
+flet-webview==1.0.5
+fastapi==0.162.0
+uvicorn==0.54.0
+SQLAlchemy==2.1.6
+agora-token-builder==1.0.0
+python-dotenv==1.2.4
