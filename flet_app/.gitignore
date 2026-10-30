@@ -1,5 +1,5 @@
 # Local state: the default SQLite database holds password hashes and login sessions.
-data/
+/data/
 .env
 
 __pycache__/

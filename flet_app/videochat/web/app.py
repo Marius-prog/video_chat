@@ -57,7 +57,7 @@ def create_app(settings: Optional[Settings] = None, *, container: Optional[Conta
             no_cdn=True,  # serve Flutter/CanvasKit from this server: no third-party hosts at runtime
             app_name="Secure Video Chat",
             app_short_name="VideoChat",
-            app_description="End-to-end secured video rooms",
+            app_description="Video rooms with signed entry tickets",
         ),
     )
     _install_middleware(app, settings)
