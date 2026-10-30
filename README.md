@@ -258,7 +258,12 @@ CMD ["gunicorn", "mychat.wsgi:application", "--bind", "0.0.0.0:8000"]
 ## 🧪 Testing
 
 ```bash
-# Run tests
+# Static verification scripts: they scan the source tree and need no Django or database
+python verify_security.py
+python verify_validation.py
+python verify_functionality.py
+
+# Django's own test runner (base/tests.py holds no tests yet, so this runs nothing)
 python manage.py test
 
 # Check security

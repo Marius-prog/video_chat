@@ -431,8 +431,8 @@ The application is ready for production deployment after configuring environment
 ## Test Artifacts
 
 **Test Scripts:**
-- `test_security.py` - Security feature validation (44 tests)
-- `test_validation.py` - Input validation testing (40 tests)
+- `verify_security.py` - Security feature validation (44 tests)
+- `verify_validation.py` - Input validation testing (40 tests)
 
 **Test Logs:**
 - All tests passed successfully
