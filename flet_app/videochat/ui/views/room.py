@@ -3,8 +3,6 @@ from __future__ import annotations
 import flet as ft
 import flet_webview as fwv
 
-from .. import components as ui
-
 
 def room_url(app, grant) -> str:
     """Same-origin URL of the room page. The signed ticket travels in the *fragment*, which browsers never

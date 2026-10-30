@@ -5,7 +5,6 @@ from fastapi.testclient import TestClient
 from sqlalchemy import select
 
 from videochat.container import build_container
-from videochat.data.db import Database
 from videochat.data.models import RoomMember
 from videochat.security import tickets
 from videochat.services import rtc

@@ -4,7 +4,6 @@ from sqlalchemy import select
 from videochat.data.models import AuthSession, User
 from videochat.security import passwords
 from videochat.security.validation import ValidationError
-from videochat.services.accounts import AccountService
 from videochat.services.errors import AccountExists, InvalidCredentials, NotAuthenticated, RateLimited
 
 from conftest import GOOD_PASSWORD

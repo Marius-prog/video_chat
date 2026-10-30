@@ -7,6 +7,7 @@ from typing import Optional
 
 from .config import Settings
 from .data.db import Database
+from .data.repositories import AccountRepository, RoomRepository
 from .security.ratelimit import RateLimiter
 from .services.accounts import AccountService
 from .services.rooms import RoomService
@@ -41,6 +42,6 @@ def build_container(settings: Settings, *, db: Optional[Database] = None) -> Con
         settings=settings,
         db=db,
         limiter=limiter,
-        accounts=AccountService(db, settings, limiter),
-        rooms=RoomService(db, settings, limiter),
+        accounts=AccountService(AccountRepository(db), settings, limiter),
+        rooms=RoomService(RoomRepository(db), settings, limiter),
     )

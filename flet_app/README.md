@@ -18,7 +18,7 @@ import each other and the Django code is unchanged; they use different databases
 ```
  Browser
  ├─ Flutter web client (Flet) ──websocket──▶  Flet session: Python UI code (ui/)
- │                                              └─ services (accounts, rooms, rtc) ─▶ SQLAlchemy ─▶ SQLite
+ │                                              └─ services (rules) ─▶ repositories (SQL) ─▶ SQLite
  └─ <iframe> /room.html#p=<signed ticket>
       ├─ POST /api/rtc/credentials  (Authorization: Bearer <ticket>) ─▶ short-lived Agora token
       └─ vendored AgoraRTC 4.8.0 ───────────────────────────────────▶ Agora network (media)
@@ -160,9 +160,9 @@ videochat/
   config.py                environment → Settings
   container.py             wires database, limiter and services together
   security/                validation, scrypt passwords, signed tickets, rate limiter
-  data/                    SQLAlchemy models and database session handling
-  services/                accounts, rooms, Agora token minting (no UI or HTTP knowledge)
-  web/                     FastAPI app, /api router, security middleware
+  data/                    SQLAlchemy models, session handling, and the repositories (every SQL statement)
+  services/                accounts, rooms, Agora token minting, throttle (rules only: no SQL, UI or HTTP)
+  web/                     FastAPI app, /api router and its dependencies (ticket, throttle, authed), middleware
   ui/                      Flet app, theme, components, and one module per view
 tests/                     pytest suite; tests/e2e is the Puppeteer browser suite
 ```

@@ -8,6 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from videochat.config import Settings  # noqa: E402
 from videochat.container import build_container  # noqa: E402
 from videochat.data.db import Database  # noqa: E402
+from videochat.data.repositories import AccountRepository, RoomRepository  # noqa: E402
 from videochat.security.ratelimit import RateLimiter  # noqa: E402
 from videochat.services.accounts import AccountService  # noqa: E402
 from videochat.services.rooms import RoomService  # noqa: E402
@@ -67,12 +68,12 @@ def limiter():
 
 @pytest.fixture
 def accounts(db, settings, limiter, clock):
-    return AccountService(db, settings, limiter, clock=clock)
+    return AccountService(AccountRepository(db), settings, limiter, clock=clock)
 
 
 @pytest.fixture
 def rooms(db, settings, limiter, clock):
-    return RoomService(db, settings, limiter, clock=clock)
+    return RoomService(RoomRepository(db), settings, limiter, clock=clock)
 
 
 @pytest.fixture
