@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Video room</title>
+  <link rel="stylesheet" href="css/room.css">
+</head>
+<body>
+  <main id="app">
+    <header id="bar">
+      <h1 id="room-name">Joining&hellip;</h1>
+      <p id="status" role="status" aria-live="polite">Connecting&hellip;</p>
+    </header>
+
+    <p id="notice" role="alert" hidden></p>
+
+    <section id="grid" aria-label="Participants"></section>
+
+    <nav id="controls" aria-label="Call controls">
+      <button id="btn-mic" type="button" aria-pressed="false" disabled>Mute</button>
+      <button id="btn-cam" type="button" aria-pressed="false" disabled>Camera off</button>
+      <button id="btn-leave" type="button" class="danger" disabled>Leave</button>
+      <button id="btn-rejoin" type="button" hidden>Rejoin</button>
+    </nav>
+  </main>
+
+  <!-- No inline script anywhere: the page runs under `script-src 'self'`. -->
+  <script src="vendor/AgoraRTC_N-4.8.0.js"></script>
+  <script src="js/room.js"></script>
+</body>
+</html>

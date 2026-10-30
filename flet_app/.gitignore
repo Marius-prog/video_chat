@@ -1,0 +1,12 @@
+# Local state: the default SQLite database holds password hashes and login sessions.
+/data/
+.env
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Browser E2E suite
+tests/e2e/node_modules/
+tests/e2e/package-lock.json
+tests/e2e/shots/

@@ -2,6 +2,8 @@
 
 A secure, enterprise-ready group video calling platform built with Django and Agora WebRTC.
 
+This project started as **MyChat**, a group video calling application using the Agora Web SDK with a Django backend, from the [divanov11/mychat](https://github.com/divanov11/mychat) tutorial project. One difference from that tutorial: Agora credentials are no longer pasted into `views.py` and `streams.js`; they are read from `.env` (see Configuration below).
+
 ## 🛡️ Security Features
 
 This application implements **military-grade security** with comprehensive protection against common web vulnerabilities:
@@ -31,7 +33,7 @@ See [SECURITY.md](SECURITY.md) for complete security documentation.
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Marius-prog/video_chat.git
    cd video_chat
    ```
 
@@ -112,6 +114,8 @@ python -c 'from django.core.management.utils import get_random_secret_key; print
 2. Create a new project
 3. Enable **App Certificate** in project settings
 4. Copy App ID and App Certificate to `.env`
+
+If you are unsure where these live in the Agora console, [this part of the original tutorial video](https://youtu.be/HX6AM_1-jNM?t=88) shows it.
 
 ## 📖 Usage
 
@@ -254,7 +258,12 @@ CMD ["gunicorn", "mychat.wsgi:application", "--bind", "0.0.0.0:8000"]
 ## 🧪 Testing
 
 ```bash
-# Run tests
+# Static verification scripts: they scan the source tree and need no Django or database
+python verify_security.py
+python verify_validation.py
+python verify_functionality.py
+
+# Django's own test runner (base/tests.py holds no tests yet, so this runs nothing)
 python manage.py test
 
 # Check security
@@ -327,6 +336,7 @@ grep -i "unauthorized" logs/security.log
 
 ## 🙏 Acknowledgments
 
+- [divanov11/mychat](https://github.com/divanov11/mychat), the tutorial project this repository started from
 - Django framework
 - Agora WebRTC SDK
 - OWASP Security Guidelines
