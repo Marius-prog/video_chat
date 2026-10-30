@@ -9,6 +9,10 @@ import json
 import sys
 from pathlib import Path
 
+# Any quoted 32-hex-digit literal looks like an Agora App ID; the old value itself is never written here.
+HEX32_LITERAL = re.compile(r"""['"][0-9a-f]{32}['"]""")
+APP_ID_LITERAL = re.compile(r"""APP_ID\s*=\s*['"][0-9a-f]{32}['"]""")
+
 # Test results
 passed = 0
 failed = 0
@@ -80,7 +84,7 @@ if views_path.exists():
     content = views_path.read_text()
 
     # Check for removed hardcoded secrets
-    if "05f0ac5f31da4cab9a0ad67877d5f6f2" not in content:
+    if not HEX32_LITERAL.search(content):
         test_pass("No hardcoded Agora APP_ID")
     else:
         test_fail("Hardcoded secrets removed", "Found hardcoded Agora APP_ID")
@@ -138,11 +142,11 @@ settings_path = Path("mychat/settings.py")
 if settings_path.exists():
     content = settings_path.read_text()
 
-    # Check for hardcoded SECRET_KEY
-    if "django-insecure-" in content and "config('SECRET_KEY'" in content:
-        test_pass("SECRET_KEY using environment variable with fallback")
+    # SECRET_KEY must come from the environment and must not fall back to a value committed to git
+    if "config('SECRET_KEY'" in content and "django-insecure-" not in content:
+        test_pass("SECRET_KEY read from the environment, no insecure fallback")
     else:
-        test_fail("SECRET_KEY configuration", "Not properly configured")
+        test_fail("SECRET_KEY configuration", "Read SECRET_KEY from the environment only; remove any django-insecure- default")
 
     # Check for ALLOWED_HOSTS wildcard
     if "ALLOWED_HOSTS = ['*']" in content:
@@ -196,7 +200,7 @@ if streams_path.exists():
     content = streams_path.read_text()
 
     # Check for hardcoded APP_ID
-    if "APP_ID = '05f0ac5f31da4cab9a0ad67877d5f6f2'" in content:
+    if APP_ID_LITERAL.search(content):
         test_fail("No hardcoded credentials", "Found hardcoded APP_ID")
     elif "sessionStorage.getItem('appId')" in content:
         test_pass("APP_ID from sessionStorage (backend)")
